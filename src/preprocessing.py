@@ -47,3 +47,50 @@ def simplify_service_columns(df: pd.DataFrame) -> pd.DataFrame:
     # MultipleLines has an analogous quirk tied to PhoneService
     df["MultipleLines"] = df["MultipleLines"].replace("No phone service", "No")
     return df
+
+def encode_binary_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Fixed Yes/No -> 1/0 mapping for binary columns. Not fit from data
+    (no leakage risk), unlike one-hot encoding or scaling.
+    """
+    df = df.copy()
+    binary_cols = [
+        "Partner", "Dependents", "PhoneService",
+        "PaperlessBilling", "MultipleLines", "OnlineSecurity",
+        "OnlineBackup", "DeviceProtection", "TechSupport",
+        "StreamingTV", "StreamingMovies"
+    ]
+    for col in binary_cols:
+        df[col] = df[col].map({"Yes": 1, "No": 0})
+    df["gender"] = df["gender"].map({"Male": 1, "Female": 0})
+    return df
+
+
+def split_data(df: pd.DataFrame, test_size: float = 0.2, random_state: int = 42):
+    """
+    Stratified split on Churn -- required because of the ~73/27 class
+    imbalance we found earlier. A plain random split risks skewing that
+    ratio differently between train and test.
+    """
+    from sklearn.model_selection import train_test_split
+    X = df.drop(columns=["Churn"])
+    y = df["Churn"]
+    return train_test_split(
+        X, y, test_size=test_size, random_state=random_state, stratify=y
+    )
+
+def build_preprocessor():
+    """
+    ColumnTransformer bundles one-hot + scaling into a single object that
+    can be fit once on X_train and reused (never refit) on X_test.
+    """
+    from sklearn.compose import ColumnTransformer
+    from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
+    categorical_cols = ["InternetService", "PaymentMethod", "Contract"]
+    numeric_cols = ["tenure", "MonthlyCharges", "TotalCharges"]
+
+    return ColumnTransformer(transformers=[
+        ("cat", OneHotEncoder(drop="first", handle_unknown="ignore"), categorical_cols),
+        ("num", StandardScaler(), numeric_cols)
+    ], remainder="passthrough")
