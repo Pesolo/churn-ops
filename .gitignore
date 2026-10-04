@@ -2,3 +2,9 @@ venv/
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+.env
+*.pem
+mlruns/
+.pytest_cache/
+notebooks/02_eda.ipynb
+notebooks/*.png
