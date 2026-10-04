@@ -1,0 +1,9 @@
+# Direct dependencies only -- pip resolves transitive deps at install time.
+# Versions pinned to what's confirmed working in the dev venv.
+pandas==2.3.3
+scikit-learn==1.9.0
+mlflow==3.14.0
+fastapi==0.140.0
+uvicorn==0.51.0
+pydantic==2.13.4
+matplotlib==3.11.1
