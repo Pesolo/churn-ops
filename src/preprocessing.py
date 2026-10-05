@@ -62,7 +62,7 @@ def encode_binary_columns(df: pd.DataFrame) -> pd.DataFrame:
     ]
     for col in binary_cols:
         df[col] = df[col].map({"Yes": 1, "No": 0})
-    df["gender"] = df["gender"].map({"Male": 1, "Female": 0})
+    df["gender"] = df["gender"].map({"Male": 0, "Female": 1})
     return df
 
 
